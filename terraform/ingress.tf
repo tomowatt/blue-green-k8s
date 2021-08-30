@@ -14,7 +14,7 @@ resource "kubernetes_ingress" "blue" {
         path {
           path = "/"
           backend {
-            service_name = kubernetes_service.blue.metadata[0].name
+            service_name = module.blue.service_name
             service_port = "http"
           }
         }
@@ -46,7 +46,7 @@ resource "kubernetes_ingress" "green" {
         path {
           path = "/"
           backend {
-            service_name = kubernetes_service.green.metadata[0].name
+            service_name = module.green.service_name
             service_port = "http"
           }
         }

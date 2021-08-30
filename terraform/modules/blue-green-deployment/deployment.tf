@@ -1,7 +1,7 @@
-resource "kubernetes_deployment" "blue" {
+resource "kubernetes_deployment" "app" {
   metadata {
-    namespace     = kubernetes_namespace.blue_green.metadata[0].name
-    generate_name = "blue-"
+    namespace     = var.namespace
+    generate_name = "${var.env_version}-"
   }
 
   spec {
@@ -10,7 +10,7 @@ resource "kubernetes_deployment" "blue" {
     selector {
       match_labels = {
         app        = "blue-green"
-        deployment = "blue"
+        deployment = "${var.env_version}"
       }
     }
 
@@ -18,40 +18,40 @@ resource "kubernetes_deployment" "blue" {
       metadata {
         labels = {
           app        = "blue-green"
-          deployment = "blue"
+          deployment = "${var.env_version}"
         }
         annotations = {
-          "config-map-hash" = sha256(jsonencode(kubernetes_config_map.blue.data))
+          "config-map-hash" = sha256(jsonencode(kubernetes_config_map.app.data))
         }
       }
 
       spec {
-        service_account_name = kubernetes_service_account.blue_green.metadata[0].name
+        service_account_name = kubernetes_service_account.app.metadata[0].name
         container {
-          image = "ghcr.io/tomowatt/blue-green:v1.0.0"
-          name  = "blue"
+          image = var.image
+          name  = var.env_version
 
           env_from {
             config_map_ref {
-              name = kubernetes_config_map.blue.metadata[0].name
+              name = kubernetes_config_map.app.metadata[0].name
             }
           }
           liveness_probe {
             http_get {
               path = "/healthz"
-              port = "blue-http"
+              port = "http"
             }
           }
 
           readiness_probe {
             http_get {
               path = "/healthz"
-              port = "blue-http"
+              port = "http"
             }
           }
           port {
-            name           = "blue-http"
-            container_port = 8888
+            name           = "http"
+            container_port = var.port
           }
         }
       }
