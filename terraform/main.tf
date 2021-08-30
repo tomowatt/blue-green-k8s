@@ -2,7 +2,7 @@ module "blue" {
   source = "./modules/blue-green-deployment"
 
   namespace   = kubernetes_namespace.blue_green.metadata[0].name
-  env_version = "blue-s"
+  env_version = "blue"
   image       = "ghcr.io/tomowatt/blue-green:v1.0.0"
   port        = 8888
   app_configmap = {
